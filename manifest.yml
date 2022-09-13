@@ -72,7 +72,7 @@ mixins:
 actions:
   attachNodeGroups:
     - script: |
-        var postgresEnvGroup = 'Redis cluster ' + '${settings.envName}';
+        var postgresEnvGroup = 'Database cluster ' + '${settings.envName}';
         var postgresEnvs = '${globals.DBEnvs}';
         var targetEnvGroups = eval('(' + MANIFEST + ')').envGroups;
         if (!Array.isArray(targetEnvGroups)) {
