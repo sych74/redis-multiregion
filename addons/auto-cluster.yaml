@@ -79,10 +79,11 @@ actions:
   reshardAfterScaleOut:
     - cmd[${this.id}]:
         export REDISCLI_AUTH=$(cat /etc/redis.conf |grep '^requirepass'|awk '{print $2}');
-        export NEW_NODE_ID=$(redis-cli cluster nodes|grep ${this.address}|grep master|awk '{print $1}');
+        export ANNOUNCE_ADDRESS=$(cat /etc/redis.conf|grep ^cluster-announce-ip|tail -n 1|awk '{print $2}');
+        export NEW_NODE_ID=$(redis-cli cluster nodes|grep ${ANNOUNCE_ADDRESS}|grep master|awk '{print $1}');
         export n=$(redis-cli cluster nodes|grep master|wc -l);
         export SHARDS_NUM=$(( 16384 / ${n} ));
-        if [ ! -z "${NEW_NODE_ID}" ]; then redis-cli --cluster reshard ${this.address}:6379 --cluster-from all --cluster-to ${NEW_NODE_ID} --cluster-slots ${SHARDS_NUM} --cluster-yes; else true; fi;
+        if [ ! -z "${NEW_NODE_ID}" ]; then redis-cli --cluster reshard ${ANNOUNCE_ADDRESS}:6379 --cluster-from all --cluster-to ${NEW_NODE_ID} --cluster-slots ${SHARDS_NUM} --cluster-yes; else true; fi;
       user: root
       sayYes: no
       
