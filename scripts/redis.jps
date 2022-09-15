@@ -80,9 +80,29 @@ onInstall:
 
 actions:
   setPasswordAcrossRegions:
-    - cmd[${event.response.nodes.join(id,)}]: cat /etc/redis.conf | grep '^requirepass' | awk '{print $2}'
+    - script: |
+        var getPasswdFromConfig = "cat /etc/redis.conf | grep '^requirepass' | awk '{print $2}'", passwd = '${globals.password}';
+        var resp = jelastic.env.control.GetEnvInfo('${env.envName}', session);
+        if (resp.result != 0) {
+            return resp;
+        }
+        resp.nodes.sort((node2, node1) => node1.id - node2.id);
+        for (var i = 0, k = resp.nodes; i < ${nodes.nosqldb.length}; i++) {
+            if (k[i].nodeGroup == 'nosqldb') {
+                var resp = jelastic.env.control.ExecCmdById('${env.envName}', session, k[i].id, toJSON([{"command": getPasswdFromConfig, "params": ""}]), false, "root");
+                if (resp.result != 0) { return resp; }
+                passwd = resp.responses[0].out;
+                if ( passwd != '${globals.password}' ) {
+                    break;
+                }
+            }
+        }
+        return { 
+            result: 0,
+            password: passwd
+        };
     - setGlobals:
-        password: ${response.out}
+        password: ${response.password}
     - script: scripts/getEnvNodes.js
     - forEach(globals.redisEnvs):
         - script: |-
