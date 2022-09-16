@@ -106,7 +106,7 @@ actions:
     - script: scripts/getEnvNodes.js
     - forEach(globals.redisEnvs):
         - script: |-
-            var passwdCmd = "jem passwd set -p ${globals.password}",
+            var passwdCmd = "sed -ci -e '/^masterauth/d' /etc/redis.conf; echo "masterauth ${globals.password}" >> /etc/redis.conf; jem passwd set -p ${globals.password}",
             resp = jelastic.env.control.ExecCmdByGroup('${@i}', session, "nosqldb", toJSON([{ "command": passwdCmd, "params": "" }]), false, false, "root");
             return resp;
 
