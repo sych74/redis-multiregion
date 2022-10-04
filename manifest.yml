@@ -7,7 +7,7 @@ categories:
 logo: /images/redis-multiregion-logo.png
 description: 
   text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution (Beta)
-  short: Enterprise-grade Redis Cluster with automatic distribution across several regions
+  short: Enterprise-grade Redis Cluster with automatic distribution across several regions (Beta)
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
 
 onBeforeInit: scripts/onBeforeInit.js
