@@ -1,12 +1,12 @@
 type: install
 jpsVersion: '1.8.1'
-name: Multi-Region Redis Cluster
+name: Multi-Region Redis Cluster (Beta)
 id: redis-cluster-multiregions
 categories:
   - apps/clusters
 logo: /images/redis-multiregion-logo.png
 description: 
-  text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution
+  text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution (Beta)
   short: Enterprise-grade Redis Cluster with automatic distribution across several regions
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
 
