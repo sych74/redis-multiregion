@@ -99,7 +99,7 @@ onInstall:
   - setGlobals:
       domain: ${settings.envName}-1.${globals.domain-1}
   - createEnvs
-  - script: ${baseUrl}/scripts/getClusterEnvs.js
+  - script: ${baseUrl}/scripts/get-cluster-envs.js
     envName: ${settings.envName}-1
   - setGlobals:
       DBEnvs: ${response.items.join(,)} 
