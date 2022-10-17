@@ -99,6 +99,12 @@ onInstall:
   - setGlobals:
       domain: ${settings.envName}-1.${globals.domain-1}
   - createEnvs
+  - if ('${settings.topology}' == 'maxperf'):
+    - setGlobals:
+        topologyDescription: "maximum performance"
+  - if ('${settings.topology}' == 'maxrealia'):
+    - setGlobals:
+        topologyDescription: "maximum reliability"
   - script: ${baseUrl}/scripts/get-cluster-envs.js
     envName: ${settings.envName}-1
   - setGlobals:
