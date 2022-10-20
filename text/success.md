@@ -5,4 +5,4 @@ Entry point details:
 
 Database credentials:    
 **User**: admin    
-**Password**: ${globals.password}    
+**Password**: ${globals.password}

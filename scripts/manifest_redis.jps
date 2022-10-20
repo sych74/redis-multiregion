@@ -1,0 +1,125 @@
+type: install
+version: 1.7
+id: postgres-node
+name: Redis Nodes 
+
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
+
+globals:
+  vpnAppid: ${settings.vpnAppid}
+
+nodes:
+  cloudlets: 16
+  count: 3
+  scalingMode: STATELESS
+  nodeType: ${settings.nodeType}
+  nodeGroup: nosqldb
+  cluster: false
+  skipNodeEmails: true
+
+onBeforeMigrate:
+  stopEvent:
+    type: warning
+    message: Migration is not supported for multiregion cluster.
+
+onBeforeRemoveNode[nosqldb]:
+  - if ('${settings.topology}' == 'maxrealia'):
+      stopEvent:
+        type: warning
+        message: Scaling is not supported for such type of topology.
+
+onBeforeAddNode[nosqldb]:
+  - if ('${settings.topology}' == 'maxrealia'):
+      stopEvent:
+        type: warning
+        message: Scaling is not supported for such type of topology.
+
+onAfterResetServicePassword[nosqldb]:
+  - setPasswordAcrossRegions
+
+onAfterResetNodePassword[nosqldb]:
+  - setPasswordAcrossRegions
+  
+onAfterAttachExtIp[nosqldb]:
+  - setClusterAnnounceIp: ${nodes.nosqldb.join(id,)}
+  
+onBeforeDetachExtIp[nosqldb]:
+  - setClusterAnnounceIp: ${nodes.nosqldb.join(id,)}
+ 
+onAfterSetExtIpCount[nosqldb]:
+  - setClusterAnnounceIp: ${nodes.nosqldb.join(id,)}
+  
+onAfterServiceScaleOut[nosqldb]:
+  - cmd[${event.response.nodes.join(id,)}]:
+      sed -ci -e 's/^loglevel notice/loglevel warning/' /etc/redis.conf;
+      jem passwd set -p ${settings.password};
+      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> /etc/redis.conf;
+      sed -ci -e '/^cluster-announce-ip/d' /etc/redis.conf;
+      echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+      jem service restart;
+    user: root
+
+onInstall:
+  - if ('${settings.externalIpAddresses}' == 'true' ):
+    - forEach(nodes.nosqldb):
+      - env.control.AttachExtIp:
+          envName: ${env.envName}
+          nodeid: ${@i.id}
+  - if ('${settings.internalNetworkEnabled}' == 'true' ):
+    - if (!/vpnAppid/.test("${globals.vpnAppid}")):
+      - install: ${baseUrl}/scripts/networkAddon.yml
+        nodeGroup: nosqldb
+        settings:
+          vpnAppid: ${globals.vpnAppid}
+  - cmd[nosqldb]:
+      sed -ci -e 's/^loglevel notice/loglevel warning/' /etc/redis.conf;
+      jem passwd set -p ${settings.password};
+      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> /etc/redis.conf;
+      jem service restart;
+    user: root
+  - forEach(nodes.nosqldb):
+    - cmd[${@i.id}]:
+        sed -ci -e '/^cluster-announce-ip/d' /etc/redis.conf;
+        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+      user: root
+
+actions:
+  setPasswordAcrossRegions:
+    - script: |
+        var getPasswdFromConfig = "cat /etc/redis.conf | grep '^requirepass' | awk '{print $2}'", passwd = '${globals.password}';
+        var resp = jelastic.env.control.GetEnvInfo('${env.envName}', session);
+        if (resp.result != 0) {
+            return resp;
+        }
+        resp.nodes.sort((node2, node1) => node1.id - node2.id);
+        for (var i = 0, k = resp.nodes; i < ${nodes.nosqldb.length}; i++) {
+            if (k[i].nodeGroup == 'nosqldb') {
+                var resp = jelastic.env.control.ExecCmdById('${env.envName}', session, k[i].id, toJSON([{"command": getPasswdFromConfig, "params": ""}]), false, "root");
+                if (resp.result != 0) { return resp; }
+                passwd = resp.responses[0].out;
+                if ( passwd != '${globals.password}' ) {
+                    break;
+                }
+            }
+        }
+        return { 
+            result: 0,
+            password: passwd
+        };
+    - setGlobals:
+        password: ${response.password}
+    - script: scripts/getEnvNodes.js
+    - forEach(globals.redisEnvs):
+        - script: |-
+            var passwdCmd = "sed -ci -e '/^masterauth/d' /etc/redis.conf; echo 'masterauth ${globals.password}' >> /etc/redis.conf; jem passwd set -p ${globals.password}";
+            var resp = jelastic.env.control.ExecCmdByGroup('${@i}', session, "nosqldb", toJSON([{ "command": passwdCmd, "params": "" }]), false, false, "root");
+            return resp;
+
+  setClusterAnnounceIp:
+    - cmd[${this}]:
+        jem service stop;
+        sed -i '/^cluster-announce-ip/d' /etc/redis.conf;
+        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+        jem service start;
+      user: root
+      sayYes: no
