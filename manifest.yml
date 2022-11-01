@@ -115,7 +115,7 @@ onInstall:
       master_address_nosqldb-1: ${response.node.address}
   - installClusterLogic
 
-startPage: ${nodes.nosqldb.master.url}
+startPage: http://node${globals.master_id_nosqldb-1}-${globals.domain}/
 success:
   email: /text/success.md?_r=${fn.random}
   text: /text/success.md?_r=${fn.random}
