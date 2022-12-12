@@ -4,7 +4,7 @@
 
 ## Redis Automatic Сlustering Across Different Regions with Automatic Failover
 
-Redis Mulit-Region Cluster is a distributed implementation of Redis where data is sharded between cluster nodes located in different Regions with the following goals in order of importance in the design: 
+Redis Multi-Region Cluster is a distributed implementation of Redis where data is sharded between cluster nodes located in different Regions with the following goals in order of importance in the design: 
 
  - High performance and linear scalability. There are no proxies, asynchronous replication is used, and no merge operations are performed on values. 
 
