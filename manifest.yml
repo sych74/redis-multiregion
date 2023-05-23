@@ -33,6 +33,7 @@ settings:
         type: envname
         name: envName
         dependsOn: region
+        tooltip: Maximum length of environment name should be not bigger than 16 symbols
         randomName: true
         showFullDomain: false
         required: true
