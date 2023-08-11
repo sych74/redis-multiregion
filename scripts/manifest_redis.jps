@@ -126,6 +126,6 @@ actions:
       sayYes: no
 
   getRedisConfigPath:
-    - cmd[${nodes.nosqldb.master.id}]: realpath ${globals.redisConfigPath}
+    - cmd[${nodes.nosqldb.master.id}]: realpath /etc/redis.conf
     - setGlobals:
         redisConfigPath: ${response.out}
