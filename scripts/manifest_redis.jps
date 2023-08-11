@@ -51,15 +51,16 @@ onAfterSetExtIpCount[nosqldb]:
   
 onAfterServiceScaleOut[nosqldb]:
   - cmd[${event.response.nodes.join(id,)}]:
-      sed -ci -e 's/^loglevel notice/loglevel warning/' /etc/redis.conf;
+      sed -ci -e 's/^loglevel notice/loglevel warning/' ${globals.redisConfigPath};
       jem passwd set -p ${settings.password};
-      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> /etc/redis.conf;
-      sed -ci -e '/^cluster-announce-ip/d' /etc/redis.conf;
-      echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> ${globals.redisConfigPath};
+      sed -ci -e '/^cluster-announce-ip/d' ${globals.redisConfigPath};
+      echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> ${globals.redisConfigPath};
       jem service restart;
     user: root
 
 onInstall:
+  - getRedisConfigPath
   - if ('${settings.externalIpAddresses}' == 'true' ):
     - forEach(nodes.nosqldb):
       - env.control.AttachExtIp:
@@ -72,21 +73,21 @@ onInstall:
         settings:
           vpnAppid: ${globals.vpnAppid}
   - cmd[nosqldb]:
-      sed -ci -e 's/^loglevel notice/loglevel warning/' /etc/redis.conf;
+      sed -ci -e 's/^loglevel notice/loglevel warning/' ${globals.redisConfigPath};
       jem passwd set -p ${settings.password};
-      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> /etc/redis.conf;
+      echo -e "cluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\nappendonly yes\nmasterauth ${settings.password}" >> ${globals.redisConfigPath};
       jem service restart;
     user: root
   - forEach(nodes.nosqldb):
     - cmd[${@i.id}]:
-        sed -ci -e '/^cluster-announce-ip/d' /etc/redis.conf;
-        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+        sed -ci -e '/^cluster-announce-ip/d' ${globals.redisConfigPath};
+        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> ${globals.redisConfigPath};
       user: root
 
 actions:
   setPasswordAcrossRegions:
     - script: |
-        var getPasswdFromConfig = "cat /etc/redis.conf | grep '^requirepass' | awk '{print $2}'", passwd = '${globals.password}';
+        var getPasswdFromConfig = "cat ${globals.redisConfigPath} | grep '^requirepass' | awk '{print $2}'", passwd = '${globals.password}';
         var resp = jelastic.env.control.GetEnvInfo('${env.envName}', session);
         if (resp.result != 0) {
             return resp;
@@ -111,15 +112,20 @@ actions:
     - script: scripts/getEnvNodes.js
     - forEach(globals.redisEnvs):
         - script: |-
-            var passwdCmd = "sed -ci -e '/^masterauth/d' /etc/redis.conf; echo 'masterauth ${globals.password}' >> /etc/redis.conf; jem passwd set -p ${globals.password}";
+            var passwdCmd = "sed -ci -e '/^masterauth/d' ${globals.redisConfigPath}; echo 'masterauth ${globals.password}' >> ${globals.redisConfigPath}; jem passwd set -p ${globals.password}";
             var resp = jelastic.env.control.ExecCmdByGroup('${@i}', session, "nosqldb", toJSON([{ "command": passwdCmd, "params": "" }]), false, false, "root");
             return resp;
 
   setClusterAnnounceIp:
     - cmd[${this}]:
         jem service stop;
-        sed -i '/^cluster-announce-ip/d' /etc/redis.conf;
-        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> /etc/redis.conf;
+        sed -i '/^cluster-announce-ip/d' ${globals.redisConfigPath};
+        echo "cluster-announce-ip $(ip a | grep -A1 venet0 | grep inet | awk '{print $2}'| sed 's/\/[0-9]*//g' | head -n 2|tail -n 1)" >> ${globals.redisConfigPath};
         jem service start;
       user: root
       sayYes: no
+
+  getRedisConfigPath:
+    - cmd[${nodes.nosqldb.master.id}]: realpath ${globals.redisConfigPath}
+    - setGlobals:
+        redisConfigPath: ${response.out}
