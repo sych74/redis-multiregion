@@ -51,7 +51,7 @@ settings:
         tooltip: 
           text:  <p style="font-size:18px">Redis cluster topologies for multi-region distribution</p><br>
                    <table  style="width:100%"><td></td><th style="text-align:center">Maximum Performance</th><th></th><th style="text-align:center">Maximum Reliability</th></table>
-                   <img width='760' height='380' src='{globals.cdnUrl}/jelastic-jps/redis-multiregion@master/images/high-performance-HA-topology-black-bg4.svg?sanitize=true'>  
+                   <img width='760' height='380' src='https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master/images/high-performance-HA-topology-black-bg4.svg?sanitize=true'>  
           tipParams: 
           maxWidth: 785
           minWidth: 400
