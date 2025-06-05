@@ -4,6 +4,7 @@ name: Multi-Region Redis Cluster PoC
 id: redis-cluster-multiregions-poc
 categories:
   - apps/clusters
+  - apps/databases
 logo: /images/redis-multiregion-logo.png
 description: 
   text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution
