@@ -9,12 +9,12 @@ logo: /images/redis-multiregion-logo.png
 description: 
   text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution
   short: Enterprise-grade Redis Cluster with automatic distribution across several regions
-baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
+baseUrl: https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master
 
 onBeforeInit: scripts/onBeforeInit.js
 
 globals:
-  multiregional_utils: https://github.com/jelastic-jps/common/blob/main/multiregional-cluster-utils
+  multiregional_utils: https://cdn.jsdelivr.net/gh/jelastic-jps/common@main/multiregional-cluster-utils
   cluster_app: redis
   password: ${fn.password(10)}
 
@@ -51,7 +51,7 @@ settings:
         tooltip: 
           text:  <p style="font-size:18px">Redis cluster topologies for multi-region distribution</p><br>
                    <table  style="width:100%"><td></td><th style="text-align:center">Maximum Performance</th><th></th><th style="text-align:center">Maximum Reliability</th></table>
-                   <img width='760' height='380' src='https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master/images/high-performance-HA-topology-black-bg4.svg?sanitize=true'>  
+                   <img width='760' height='380' src='{globals.cdnUrl}/jelastic-jps/redis-multiregion@master/images/high-performance-HA-topology-black-bg4.svg?sanitize=true'>  
           tipParams: 
           maxWidth: 785
           minWidth: 400
@@ -74,8 +74,8 @@ settings:
         tooltip: The order of selected regions matters for <b>Maximum Performance</b> topology only. First selected region will host the primary node of cluster, so this region should have the highest performance. Other regions will host the secondary nodes. 3 nodes will be created for each environment.
 
 mixins:
-  - https://github.com/jelastic-jps/common/blob/main/multiregional-cluster-utils/multiregion-globals-common.yml
-  - https://github.com/jelastic-jps/common/blob/main/multiregional-cluster-utils/multiregion-db-common.yml
+  - https://cdn.jsdelivr.net/gh/jelastic-jps/common@main/multiregional-cluster-utils/multiregion-globals-common.yml
+  - https://cdn.jsdelivr.net/gh/jelastic-jps/common@main/multiregional-cluster-utils/multiregion-db-common.yml
 
 actions:
   createEnvGroups:

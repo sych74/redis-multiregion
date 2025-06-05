@@ -67,5 +67,5 @@ actions:
             resp = jelastic.dev.scripting.Eval("${settings.vpnAppid}", session, "vpn.VPNController", params);
         return resp.response ? resp.response:resp;
 
-logo: https://raw.githubusercontent.com/jelastic/icons/master/vpn_network/service-net-ip-logo.png
+logo: {globals.cdnUrl}/jelastic/icons@master/vpn_network/service-net-ip-logo.png
 success: Successfully added to service network

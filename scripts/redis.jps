@@ -3,7 +3,7 @@ version: 1.7
 id: postgres-node
 name: Redis Nodes 
 
-baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
+baseUrl: https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master
 
 globals:
   vpnAppid: ${settings.vpnAppid}
