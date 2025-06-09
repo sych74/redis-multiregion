@@ -2,7 +2,7 @@ type: update
 jpsVersion: 1.8.1
 name: Redis multi region cluster logic
 decription: Redis multi region cluster autoscaling logic
-baseUrl: https://raw.githubusercontent.com/jelastic-jps/redis-multiregion/master
+baseUrl: https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master
 
 onInstall:
   - getRedisConfigPath
