@@ -9,12 +9,12 @@ logo: /images/redis-multiregion-logo.png
 description: 
   text: Highly-available and reliable Redis cluster setup with automatic multi-region distribution
   short: Enterprise-grade Redis Cluster with automatic distribution across several regions
-baseUrl: https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master
+baseUrl: https://raw.githubusercontent.com/sych74/redis-multiregion/JE-76578
 
 onBeforeInit: scripts/onBeforeInit.js
 
 globals:
-  multiregional_utils: https://cdn.jsdelivr.net/gh/jelastic-jps/common@main/multiregional-cluster-utils
+  multiregional_utils: https://raw.githubusercontent.com/sych74/common/JE-76578/multiregional-cluster-utils
   cluster_app: redis
   password: ${fn.password(10)}
 
@@ -54,7 +54,7 @@ settings:
         tooltip: 
           text:  <p style="font-size:18px">Redis cluster topologies for multi-region distribution</p><br>
                    <table  style="width:100%"><td></td><th style="text-align:center">Maximum Performance</th><th></th><th style="text-align:center">Maximum Reliability</th></table>
-                   <img width='760' height='380' src='https://cdn.jsdelivr.net/gh/jelastic-jps/redis-multiregion@master/images/high-performance-HA-topology-black-bg4.svg?sanitize=true'>  
+                   <img width='760' height='380' src='https://raw.githubusercontent.com/sych74/redis-multiregion/JE-76578/images/high-performance-HA-topology-black-bg4.svg'>  
           tipParams: 
           maxWidth: 785
           minWidth: 400
